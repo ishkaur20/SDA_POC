@@ -1,0 +1,22 @@
+domName = 'ubuntu-1'
+dom = conn.lookupByName(domName)
+if dom == None:
+    print('Failed to find the domain '+domName, file=sys.stderr)
+    exit(1)
+
+name = dom.name()
+print('The name of the domain is "' + name +'".')
+
+flag = dom.hasCurrentSnapshot()
+print('The value of the current snapshot flag is ' + str(flag))
+
+def is_qcow2(vm):
+    raw_xml = dom.XMLDesc(0)
+    xml = minidom.parseString(raw_xml)
+    diskTypes = xml.getElementsByTagName('driver')
+    for diskType in diskTypes:
+        print('disk: type='+diskType.getAttribute('type'))
+    return diskType.getAttribute('type')
+
+    if diskType.getAttribute('type') == 'qcow2':
+        print('you can snapshotthis domain')
