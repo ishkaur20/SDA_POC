@@ -1,22 +1,35 @@
-domName = 'ubuntu-1'
-dom = conn.lookupByName(domName)
-if dom == None:
-    print('Failed to find the domain '+domName, file=sys.stderr)
-    exit(1)
+import sys
 
-name = dom.name()
-print('The name of the domain is "' + name +'".')
-
-flag = dom.hasCurrentSnapshot()
-print('The value of the current snapshot flag is ' + str(flag))
-
-def is_qcow2(vm):
-    raw_xml = dom.XMLDesc(0)
+def is_qcow2(raw_xml):
     xml = minidom.parseString(raw_xml)
     diskTypes = xml.getElementsByTagName('driver')
     for diskType in diskTypes:
         print('disk: type='+diskType.getAttribute('type'))
-    return diskType.getAttribute('type')
+        if diskType.getAttribute('type') == 'qcow2':
+            return True
+    return False
 
-    if diskType.getAttribute('type') == 'qcow2':
-        print('you can snapshotthis domain')
+def take_snapshot(vm):
+    pass
+
+def main():
+    domName = 'ubuntu-1'
+    dom = conn.lookupByName(domName) # looks for this vm object or whatever it is
+    if dom == None: # validate that we actually got one! Noice!
+        print('Failed to find the domain %s', domName, file=sys.stderr) # dont think this file is a valid parameter
+        exit(1)
+
+    name = dom.name() # Get the name, sure!
+    print('The name of the domain is "%s".', name)
+
+    flag = dom.hasCurrentSnapshot() # Check if a snapshot exists I presume?
+    print('The value of the current snapshot flag is %s', str(flag))
+
+    raw_xml = dom.XMLDesc(0) # Get xml from this object
+    if is_qcow2(raw_xml): # Check if the driver for this vm is of type qcow2
+        take_snapshot(raw_xml) # if it is then take a snapshot -> delegate this to method.
+        pass
+
+
+if __name__ == "__main__":
+    main()
